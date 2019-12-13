@@ -83,7 +83,10 @@ class AggregateSamples(BaseCollationElement, collater_name="aggregate_samples"):
                 column_list = list(params.keys()) + run_data.columns.tolist()
 
                 for param, value in params.items():
-                    run_data[param] = value
+                    if type(value) is list:
+                        run_data[param] = [str(value)]*len(run_data)
+                    else:
+                        run_data[param] = value
 
                 # Reorder columns
                 run_data = run_data[column_list]

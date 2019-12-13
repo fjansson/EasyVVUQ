@@ -133,10 +133,16 @@ class PCESampler(BaseSamplingElement, sampler_name="PCE_sampler"):
     def __next__(self):
         if self.count < self._number_of_samples:
             run_dict = {}
-            i_par = 0
-            for param_name in self.vary.get_keys():
-                run_dict[param_name] = self._nodes.T[self.count][i_par]
-                i_par += 1
+            i = 0
+            for param_name, dist in self.vary.get_items():
+                l = len(dist)
+                # Scalar param
+                if l==1:
+                    run_dict[param_name] = self._nodes.T[self.count][i]
+                # List param
+                else:
+                    run_dict[param_name] = list(self._nodes.T[self.count][i:i+l])
+                i += l
             self.count += 1
             return run_dict
         else:

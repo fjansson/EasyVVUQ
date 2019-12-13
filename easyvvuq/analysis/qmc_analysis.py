@@ -60,7 +60,7 @@ class QMCAnalysis(BaseAnalysisElement):
             ['statistical_moments', 'percentiles', 'sobol_indices',
              'correlation_matrices', 'output_distributions']
         """
-
+        import numpy as np
         if data_frame is None:
             raise RuntimeError("Analysis element needs a data frame to "
                                "analyse")
@@ -109,11 +109,21 @@ class QMCAnalysis(BaseAnalysisElement):
                                                     n_sobol_samples)
             sobols_first_dict = {}
             sobols_total_dict = {}
-            i_par = 0
-            for param_name in self.sampler.vary.get_keys():
-                sobols_first_dict[param_name] = self._first_order(A, AB[:, i_par], B)
-                sobols_total_dict[param_name] = self._total_order(A, AB[:, i_par], B)
-                i_par += 1
+            i = 0
+            for param_name, dist in self.sampler.vary.get_items():
+                l = len(dist)
+                if l==1:
+                    sobols_first_dict[param_name] = self._first_order(A, AB[:, i], B)
+                    sobols_total_dict[param_name] = self._total_order(A, AB[:, i], B)
+                else:
+                    s1 = []
+                    st = []
+                    for j in range(l):
+                        s1.append(self._first_order(A, AB[:, i+j], B))
+                        st.append(self._total_order(A, AB[:, i+j], B))
+                    sobols_first_dict[param_name] = s1
+                    sobols_total_dict[param_name] = st
+                i += l
             results['sobols_first'][k] = sobols_first_dict
             results['sobols_total'][k] = sobols_total_dict
 

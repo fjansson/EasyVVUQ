@@ -122,12 +122,18 @@ class PCEAnalysis(BaseAnalysisElement):
             sobols_first_dict = {}
             sobols_second_dict = {}
             sobols_total_dict = {}
-            i_par = 0
-            for param_name in self.sampler.vary.get_keys():
-                sobols_first_dict[param_name] = sobols_first_narr[i_par]
-                sobols_second_dict[param_name] = sobols_second_narr[i_par]
-                sobols_total_dict[param_name] = sobols_total_narr[i_par]
-                i_par += 1
+            i = 0
+            for param_name, dist in self.sampler.vary.get_items():
+                l = len(dist)
+                if l==1:
+                    sobols_first_dict[param_name] = sobols_first_narr[i]
+                    sobols_second_dict[param_name] = sobols_second_narr[i]
+                    sobols_total_dict[param_name] = sobols_total_narr[i]
+                else:
+                    sobols_first_dict[param_name] = sobols_first_narr[i:i+l]
+                    sobols_second_dict[param_name] = sobols_second_narr[i:i+l]
+                    sobols_total_dict[param_name] = sobols_total_narr[i:i+l]
+                i += l
             results['sobols_first'][k] = sobols_first_dict
             results['sobols_second'][k] = sobols_second_dict
             results['sobols_total'][k] = sobols_total_dict
